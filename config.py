@@ -17,16 +17,17 @@ config = {
                 'job_name': 'Trial ({locale})',
                 'job_symbol': '{locale}',
                 'tier': 3,
+                'log_reference': 'log_info.log',
                 #'artifacts': {
                 #    'log_info.log': os.path.join(here, 'build', 'upload', 'logs', 'log_info.log'),
                 #    'report.html': os.path.join(here, 'build', 'upload', 'reports', 'report.html'),
                 #},
-                'log_references': 
-                {
-                    'url': 'http://pastebin.com/2nmPgqyb',
-                    'name': 'buildbot_text'
-                }
-                ,
+                #'log_references': 
+                #{
+                #    'url': 'http://pastebin.com/2nmPgqyb',
+                #    'name': 'buildbot_text'
+                #}
+                #,
             },
         },
     },
