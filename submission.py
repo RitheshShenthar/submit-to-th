@@ -116,7 +116,7 @@ class Submission(object):
 
             # Bug 1175559 - Workaround for HTTP Error
             job.add_end_timestamp(0)
-            job.add_log_reference( 'buildbot_text', self.settings['treeherder']['log_references']['url'],parse_status='parsed')
+            #job.add_log_reference( 'buildbot_text', self.settings['treeherder']['log_references']['url'],parse_status='parsed')
             #job.add_log_reference(log_name, log_url, parse_status='parsed')
 
         return job

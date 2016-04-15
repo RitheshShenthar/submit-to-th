@@ -17,7 +17,7 @@ config = {
                 'job_name': 'Trial ({locale})',
                 'job_symbol': '{locale}',
                 'tier': 3,
-                'log_reference': 'log_info.log',
+                'log_reference': 'log_info.txt',
                 #'artifacts': {
                 #    'log_info.log': os.path.join(here, 'build', 'upload', 'logs', 'log_info.log'),
                 #    'report.html': os.path.join(here, 'build', 'upload', 'reports', 'report.html'),
