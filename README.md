@@ -7,7 +7,8 @@
  1) Submit the results of a test script run locally on your Linux/Mac to an instance of Treeherder. (The instance can be locally running using Vagrant/Treeherder.)
  2) Submit Jenkins results to an instance of Treeherder.
  
- python submission.py --repository=mozilla-inbound --test-type=functional --revision [FILL] --treeherder-url=http://local.treeherder.mozilla.org/ --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state=running x 
+ python submission.py --repository=mozilla-inbound --test-type=functional --revision [FILL] --treeherder-url=http://local.treeherder.mozilla.org/ --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state=running x
+ 
  In order for the above command to work, you would need to provide-
  1) a valid repository found on treeherder.
  2) a revision which has already been ingested(see docs) by Treeherder.
