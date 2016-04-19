@@ -18,16 +18,10 @@ config = {
                 'job_symbol': '{locale}',
                 'tier': 3,
                 'log_reference': 'log_info.txt',
-                #'artifacts': {
-                #    'log_info.log': os.path.join(here, 'build', 'upload', 'logs', 'log_info.log'),
-                #    'report.html': os.path.join(here, 'build', 'upload', 'reports', 'report.html'),
-                #},
-                #'log_references': 
-                #{
-                #    'url': 'http://pastebin.com/2nmPgqyb',
-                #    'name': 'buildbot_text'
-                #}
-                #,
+                'artifacts': {
+                    'log_info.txt': os.path.join(here, 'build', 'upload', 'logs', 'log_info.txt'),
+                    'report.html': os.path.join(here, 'build', 'upload', 'reports', 'report.html'),
+                },
             },
         },
     },
