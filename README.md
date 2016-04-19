@@ -10,6 +10,8 @@ There are essentially three kinds of instances of Treeherder to which you can su
 2. Staging (https://treeherder.allizom.org) - This is a publicly available continuously running server maintained by the treeherder team which is used for pre-deployment tests. <br>
 3. Production (https://treeherder.mozilla.org) - This is the publicly available production instance of treeherder against which you can only submit pre-tested legitimate test run results. <br>
 
+By default the submit-to-th tool submits to the Local Treeherder instance, but you can direct the output to any Treeherder instance with these params=><br> ```--treeherder-url=<Fill> --treeherder-client-id=<Fill> --treeherder-secret=<Fill>```
+
 
 ##Requirements
 It is assumed that you already have a MacOS or Linux development environment setup (Tool was developed on Mac OS X Yosemite). Posting to treeherder can be done via a treeherder python client or a node.js client; this tool only uses the python client. It is assumed that your development environment already has python 2.7.9+ already installed (2.7.9+ is required for authentication).
@@ -30,6 +32,8 @@ The below steps will create a local instance of Treeherder, run a sample test sc
 
 4.Find a valid revision id against which we can submit a test result. To do this, look for a revision id that is already ingested in your local treeherder under repo "mozilla-inbound". (Since the default repo in our project is mozilla-inbound). eg:- f5f9a967030d
 
+![alt tag](https://github.com/RitheshShenthar/submit-to-th/blob/master/Treeherder.png?raw=true)
+
 5.Under the submit-to-th folder, run the below command provided with =><br>
 1) valid revision id for repository "mozilla-inbound" using ```--revision```. <br>
 2) valid secret key obtained as output in step (3)
@@ -39,7 +43,7 @@ The below steps will create a local instance of Treeherder, run a sample test sc
 	
 
 6.Under the submit-to-th folder, run ```./testscript```<br>
-7.Run the same command as in step (6) except with ```--build-state=completed```
+7.Run the same command as in step (5) except with ```--build-state=completed```<br>
 8.Navigate to Treeherder UI and verify that result was logged. (Ensure that the correct Tier is selected as necessary in the dropdown.)
 
 ##Using the tool
