@@ -16,16 +16,21 @@ By default the submit-to-th tool submits to the Local Treeherder instance, but y
 ##Requirements
 It is assumed that you already have a MacOS or Linux development environment setup (Tool was developed on Mac OS X Yosemite). Posting to treeherder can be done via a treeherder python client or a node.js client; this tool only uses the python client. It is assumed that your development environment already has python 2.7.9+ already installed (2.7.9+ is required for authentication).
 
-If you are planning on submitting data to a local instance(a must if you are testing) [Virtual Box] (https://www.virtualbox.org/)and [Vagrant](https://www.vagrantup.com/) are also required for the development environment. If you don’t have them installed, please refer to the hyperlinks on how to install them.
+If you are planning on submitting data to a local instance(a must if you are testing) [Virtual Box] (https://www.virtualbox.org/) and [Vagrant](https://www.vagrantup.com/) are also required for the development environment. If you don’t have them installed, please refer to the hyperlinks on how to install them.
 
-Note - If your submissions need to be done from a Jenkins machine, it will need the treeherder client module. Install this using ```pip install treeherder-client```. If you are installing the complete Treeherder package anyways to run a local instance, then treeherder-client gets installed as a part of it.
+Note - If your submissions need to work, they will need the treeherder client module. Install this using =>
+
+	pip install treeherder-client
+	#Supporting packages
+	pip install mozinfo boto
+If you are installing the complete Treeherder package anyways to run a local instance, then treeherder-client gets installed as a part of it.
 
 
 ##Quickstart
 The below steps will create a local instance of Treeherder, run a sample test script and log the result using the submission script. <br>
 1. git clone https://github.com/RitheshShenthar/submit-to-th.git<br>
-2. [Install](http://treeherder.readthedocs.org/installation.html) local instance of Treeherder. Verify that http://local.treeherder.mozilla.org/ is up and running and it that is ingesting pulse data i.e Treeherder is acquiring information about Mozilla checkins with revision ids.<br>
-3. Create Hawk credentials using the following commands (after starting Treeherder as in Step (2) 
+2. [Install a local instance of Treeherder](http://treeherder.readthedocs.org/installation.html) . Verify that ```http://local.treeherder.mozilla.org/``` is up and running and that it is ingesting pulse data i.e Treeherder is acquiring information about Mozilla checkins with revision ids.<br>
+3. Create Hawk credentials using the following commands (after starting Treeherder as in Step (2)) 
 
 	~/treeherder$ vagrant ssh
 	vagrant ~/treeherder $ ./manage.py create_credentials test-client-id treeherder@mozilla.com "Description"
@@ -46,17 +51,17 @@ The below steps will create a local instance of Treeherder, run a sample test sc
 7.Run the same command as in step (5) except with ```--build-state=completed```<br>
 8.Navigate to Treeherder UI and verify that result was logged. (Ensure that the correct Tier is selected as necessary in the dropdown.)
 
-##Using the tool
+##Extending the tool
 
 Treeherder provides a library, called ```treeherder-client```, to support data submission to a treeherder service instance. The submit-to-th project internally uses this module to execute submissions.
 Before you can submit data to treeherder, you will need at least this much information-<br>
-1. Hawk credentials - You will need to [acquire API credentials](https://treeherder.readthedocs.org/common_tasks.html#managing-api-credentials) in order to authenticate your submissions. <br><b>Note-</b><br> For local instances, you can use the command in the link only once Treeherder instance is up. Also you will need to recreate the credentials every time you destroy and recreate the local instance.<br>
+1. Hawk credentials - Whether you are using a Local/Staging/Production Treeherder instance, you will need to [acquire API credentials](https://treeherder.readthedocs.org/common_tasks.html#managing-api-credentials) in order to authenticate your submissions. <br><b>Note-</b><br> For local instances, you can use the command in the link only once Treeherder instance is up. Also you will need to recreate the credentials every time you destroy and recreate the local instance.<br>
 2. repository - you will need to know which repository you want to log results against.<br>
 3. revision - you will need to know which revision of the above repository you want to log results against.<br>
  
  This tool can be customized to submit the results of any kind of job and any kind of repository. It contains python code that can help you submit data to Treeherder in two scenarios - 
  
- 1) With S3 Logging.(Assuming S3 bucket is available for logging.)<br>
+ 1) Client is a Jenkins slave machine and has S3 Logging priveleges.<br>
  ```./submit-to-th.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv
 ```
 The following os environment variables need to be set for this option or passed in through CLI-
@@ -64,7 +69,7 @@ The following os environment variables need to be set for this option or passed 
 	AWS_BUCKET                      
 	AWS_ACCESS_KEY_ID
 	AWS_SECRET_ACCESS_KEY
- 2) Without S3 Logging.
+ 2) Without S3 Logging, on any linux based machine.
  ```./submission.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv
 ```
 
@@ -101,11 +106,39 @@ Run the script commandline ./submission.py or ./submit-to-th with ```--build-sta
 
 Verify that results are popping up on treeherder. Ensure correct Tier is checked in the Dropdown.
 
+#Troubleshooting
+Useful logs for debugging.
+
+	/var/log/gunicorn/treeherder_error.log
+
+	vagrant /var/log/treeherder $ ls
+	treeherder.log  treeherder.log.1  treeherder.log.2
+Or in the vagrant SSH when starting up the treeherder instance just do:
+	
+	vagrant ~/treeherder $ ./bin/run_gunicorn | grep error
+
+#Known issues
+1. If your Local Treeherder instance is not ingesting tasks, go to your ```treeherder``` directory and execute the following -<br>
+a. ```vagrant destroy```<br>
+b. ```rm -rf celerybeat-schedule``` <br> 
+c. and restart the build process.<br>
+
+2. If submitting to the local treeherder instance was working great, but submitting to the live treeherder staging from jenkins fails with the following error:
+```13:50:05 requests.exceptions.HTTPError: 403 Client Error: FORBIDDEN for url```
+This indicates that the jenkins node time is off from the treeherder server time by more than 60 seconds, and authentication will fail; so be sure that your jenkins server time is correct.
+
+3. If you are running Ubuntu and are having issues bringing up the Local instance, try <br>a.```sudo apt-get install nfs-kernel-server```<br>b. Rebuild the local virtualbox (```sudo /etc/init.d/vboxdrv setup)```<br>
+	
 #Note:
 If you want to further understand Treeherder and how to install it locally, please read these docs -<br>
  https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder<br>
  http://treeherder.readthedocs.org/installation.html<br>
  Want to learn more or have any specific questions? Chat on IRC:#treeherder<br>
+ 
+ If you want to see examples of Jenkins to Treeherder submissions, see the following links-
+ http://robwood.zone/posting-to-treeherder-from-jenkins/<br>
+ https://github.com/mozilla/mozmill-ci/blob/master/jenkins-master/jobs/scripts/workspace/submission.py
+ 
  
  
   
