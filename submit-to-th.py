@@ -134,7 +134,7 @@ class Submission(object):
                                                        revision=self.revision))
         headers = {
             'Accept': 'application/json',
-            'User-Agent': 'mozmill-ci',
+            'User-Agent': 'TestScript',
         }
 
         # self.logger.debug('Getting revision hash from: %s' % lookup_url)
@@ -314,11 +314,11 @@ if __name__ == '__main__':
     kwargs = parse_args()
 
     # Activate the environment, and create if necessary
-    #import environment
-    #if environment.exists(kwargs['venv_path']):
-    #    environment.activate(kwargs['venv_path'])
-    #else:
-    #    environment.create(kwargs['venv_path'], os.path.join(here, 'requirements.txt'))
+    import environment
+    if environment.exists(kwargs['venv_path']):
+        environment.activate(kwargs['venv_path'])
+    else:
+       environment.create(kwargs['venv_path'], os.path.join(here, 'requirements.txt'))
 
     # Can only be imported after the environment has been activated
     import mozinfo
