@@ -64,7 +64,8 @@ Before you can submit data to treeherder, you will need at least this much infor
  This tool can be customized to submit the results of any kind of job and any kind of repository. It contains python code that can help you submit data to Treeherder in two scenarios - 
  
  1) Client is a Jenkins slave machine and has S3 Logging credentials.<br>
- ```./submit-to-th.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv```
+ 
+ 	./submit-to-th.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv
  
 The following os environment variables need to be set for this option or passed in through CLI-
 
@@ -72,8 +73,8 @@ The following os environment variables need to be set for this option or passed 
 	AWS_ACCESS_KEY_ID
 	AWS_SECRET_ACCESS_KEY
  2) Without S3 Logging, on any linux based machine.
- ```./submission.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv
-```
+ 
+ 	./submission.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv
 
 <b>Customization </b>
 
