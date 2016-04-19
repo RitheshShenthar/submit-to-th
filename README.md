@@ -55,15 +55,17 @@ The below steps will create a local instance of Treeherder, run a sample test sc
 
 Treeherder provides a library, called ```treeherder-client```, to support data submission to a treeherder service instance. The submit-to-th project internally uses this module to execute submissions.
 Before you can submit data to treeherder, you will need at least this much information-<br>
-1. Hawk credentials - Whether you are using a Local/Staging/Production Treeherder instance, you will need to [acquire API credentials](https://treeherder.readthedocs.org/common_tasks.html#managing-api-credentials) in order to authenticate your submissions. <br><b>Note-</b><br> For local instances, you can use the command in the link only once Treeherder instance is up. Also you will need to recreate the credentials every time you destroy and recreate the local instance.<br>
+1. Hawk credentials - Whether you are using a Local/Staging/Production Treeherder instance, you will need to [acquire API credentials](https://treeherder.readthedocs.org/common_tasks.html#managing-api-credentials) in order to authenticate your submissions. <br><b>Note-</b> For local instances, you can use the command in the link only once Treeherder instance is up. Also you will need to recreate the credentials every time you destroy and recreate the local instance.<br>
 2. repository - you will need to know which repository you want to log results against.<br>
 3. revision - you will need to know which revision of the above repository you want to log results against.<br>
+4. test-type - Know what types of tests are permitted by config.py.<br>
+5. config.py - Have appropriate configurations placed here. The submission to treeherder is constructed as a "job" with information that is placed here.
  
  This tool can be customized to submit the results of any kind of job and any kind of repository. It contains python code that can help you submit data to Treeherder in two scenarios - 
  
- 1) Client is a Jenkins slave machine and has S3 Logging priveleges.<br>
- ```./submit-to-th.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv
-```
+ 1) Client is a Jenkins slave machine and has S3 Logging credentials.<br>
+ ```./submit-to-th.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv```
+ 
 The following os environment variables need to be set for this option or passed in through CLI-
 
 	AWS_BUCKET                      
@@ -73,37 +75,36 @@ The following os environment variables need to be set for this option or passed 
  ```./submission.py --repository=[mozilla-inbound] --test-type=[functional] --revision [FILL] --treeherder-url=[http://local.treeherder.mozilla.org/] --treeherder-client-id=[FILL] --treeherder-secret=[FILL] --build-state={running|completed}   treeherder_venv
 ```
 
+<b>Customization </b>
 
+1. <b>Script modifications-</b> You can modify settings to suit your project and submit a job to indicate that the job is running -<br>
+a. Script commandline params need to be modified as per your project- eg:-submission.py --repository=xxxx<br>
+b. config.py - Settings in the config.py need to be modified to suit your project and job. See config.py for details.<br>
+c. You can add os environment variables with the below names or optionally pass them in the commandline. 
+
+		TREEHERDER_CLIENT_ID
+		TREEHERDER_URL
+		TREEHERDER_SECRET
+		AWS_BUCKET                      
+		AWS_ACCESS_KEY_ID
+		AWS_SECRET_ACCESS_KEY
+	
+	The AWS variables are valid only with the submit-to-th.py file and not with submission.py. The 2 files are the same for the most part, with the difference that submission.py is meant for running on local sandboxes and submit-to-th.py is meant for running on Jenkins enabled machines with S3 credentials available.<br>
+
+2. <b>Compatible Tests/Jobs-</b>
+The criteria for writing compatible tests or jobs are-<br>
+a.The job needs to create a simple file called ```retval.txt``` and store a "0" (on PASS) or "1" (on FAIL) in it and <b>nothing else</b>.  <br>Eg:- If a job has 100 tests and 1 has failed, the job should create a file ```retval.txt``` and in it store a job result of "1" indicating the failure and save only that integer in the file as a string(see ```testscript``` for reference)<br>
+b. All logging needs to be done into a file called ```log_info.txt```.<br>
+c. Both files need to be stored in the same folder/workspace as the submit-to-th.<br>
+
+##Stepwise submission process
 <b>Step 1</b><br>
-
-Settings to create an initial submission before job is run -<br>
-1. Script commandline params need to be modified as per your project- eg:-submission.py --repository=xxxx<br>
-2. config.py - Settings in the config.py need to be modified to suit your project and job. See config.py for details<br>
-3. We can add os environment variables with the below names or optionally pass them in the commandline. 
-
-	TREEHERDER_CLIENT_ID
-	TREEHERDER_URL
-	TREEHERDER_SECRET
-	AWS_BUCKET                      
-	AWS_ACCESS_KEY_ID
-	AWS_SECRET_ACCESS_KEY
-The AWS variables are valid only with the submit-to-th.py file and not with submission.py. The 2 files are the same for the most part, with the difference that submission.py is meant for running on local sandboxes and submit-to-th.py is meant for running on Jenkins enabled machines with S3 credentials available.<br>
-4. Set ```--build-state=running``` in the CLI command.
-
+Run the script commandline ./submission.py or ./submit-to-th with ```--build-state=running``` in the CLI command.<br>
 <b>Step 2</b><br>
-
-Whatever job/test suite needs to be run, is run.(eg:-```testscript``` in our case)<br>
-The criteria for writing compatible test jobs are-<br>
-1. The job needs to create a simple file called ```retval.txt``` and store a "0" (on PASS) or "1" (on FAIL) in it and <b>nothing else</b>.  <br>Eg:- If a job has 100 tests and 1 has failed, the job should create a file ```retval.txt``` and in it store a job result of "1" indicating the failure and save only that integer in the file as a string(see ```testscript``` for reference)<br>
-2. All logging needs to be done into a file called ```log_info.txt```.<br>
-3. Both files need to be stored in the same folder/workspace as the submit-to-th. This is to enable visibility during Step 3.<br>
-
-<b>Step 3</b><br>
-
-Run the script commandline ./submission.py or ./submit-to-th with ```--build-state=completed``` in the CLI command.
-
+Whatever job/test suite needs to be run, is run.(eg:-```./testscript``` in our case)<br>
+<b>Step 3</b> <br>
+Run the script commandline ./submission.py or ./submit-to-th with ```--build-state=completed``` in the CLI command.<br>
 <b> Step 4</b><br>
-
 Verify that results are popping up on treeherder. Ensure correct Tier is checked in the Dropdown.
 
 #Troubleshooting
@@ -135,9 +136,9 @@ If you want to further understand Treeherder and how to install it locally, plea
  http://treeherder.readthedocs.org/installation.html<br>
  Want to learn more or have any specific questions? Chat on IRC:#treeherder<br>
  
- If you want to see examples of Jenkins to Treeherder submissions, see the following links-
+ If you want to see examples of Jenkins to Treeherder submissions, see the following links-<br>
  http://robwood.zone/posting-to-treeherder-from-jenkins/<br>
- https://github.com/mozilla/mozmill-ci/blob/master/jenkins-master/jobs/scripts/workspace/submission.py
+ https://github.com/mozilla/mozmill-ci/blob/master/jenkins-master/jobs/scripts/workspace/submission.py<br>
  
  
  
